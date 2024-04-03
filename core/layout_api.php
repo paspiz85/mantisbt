@@ -579,6 +579,30 @@ function layout_navbar_button_bar() {
 		echo '</a>';
 	}
 
+	if (access_has_global_level( DEVELOPER )) {
+		$t_url = config_get_global('toolbar_link_git');
+		if( !empty($t_url) ) {
+			echo '<a class="btn btn-primary btn-sm" href="'.$t_url.'" title="Git">';
+			print_icon( 'fa-code-fork' );
+			echo '</a>';
+		}
+	}
+
+	if (access_has_global_level( MANAGER )) {
+		$t_url = config_get_global('toolbar_link_jenkins');
+		if( !empty($t_url) ) {
+			echo '<a class="btn btn-primary btn-sm" href="'.$t_url.'" title="Jenkins">';
+			print_icon( 'fa-user-md' );
+			echo '</a>';
+		}
+		$t_url = config_get_global('toolbar_link_grafana');
+		if( !empty($t_url) ) {
+			echo '<a class="btn btn-primary btn-sm" href="'.$t_url.'" title="Grafana">';
+			print_icon( 'fa-bar-chart' );
+			echo '</a>';
+		}
+	}
+
 	echo '</div>';
 	echo '</li>';
 }
