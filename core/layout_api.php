@@ -579,28 +579,20 @@ function layout_navbar_button_bar() {
 		echo '</a>';
 	}
 
-	if (access_has_global_level( DEVELOPER )) {
-		$t_url = config_get_global('toolbar_link_git');
-		if( !empty($t_url) ) {
-			echo '<a class="btn btn-primary btn-sm" href="'.$t_url.'" title="Git">';
-			print_icon( 'fa-code-fork' );
-			echo '</a>';
+	$t_toolbar_buttons = config_get_global('toolbar_buttons');
+	foreach( $t_toolbar_buttons as $t_button ) {
+		if ( array_key_exists('any_project_level_threshold', $t_button) && !access_has_any_project_level( $t_button['any_project_level_threshold'] ) ) {
+			continue;
 		}
-	}
-
-	if (access_has_global_level( MANAGER )) {
-		$t_url = config_get_global('toolbar_link_jenkins');
-		if( !empty($t_url) ) {
-			echo '<a class="btn btn-primary btn-sm" href="'.$t_url.'" title="Jenkins">';
-			print_icon( 'fa-user-md' );
-			echo '</a>';
+		$t_title = $t_button['title'];
+		$t_label = $t_button['label'];
+		$t_html_title = empty( $t_title ) ? '' : ' title="' . string_html_specialchars( $t_title ) . '"';
+		echo '<a class="btn btn-primary btn-sm" href="' . $t_button['url'] . '"' . $t_html_title . '>';
+		print_icon( $t_button['icon'] );
+		if ( !empty( $t_label ) ) {
+			echo ' ' . string_html_specialchars( $t_label );
 		}
-		$t_url = config_get_global('toolbar_link_grafana');
-		if( !empty($t_url) ) {
-			echo '<a class="btn btn-primary btn-sm" href="'.$t_url.'" title="Grafana">';
-			print_icon( 'fa-bar-chart' );
-			echo '</a>';
-		}
+		echo '</a>';
 	}
 
 	echo '</div>';

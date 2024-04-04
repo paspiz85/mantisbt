@@ -301,7 +301,8 @@ print_manage_menu( 'manage_proj_edit_page.php' );
 				</form>
 <?php
 	# Create project button, only shown if user's global access level allows
-	if( access_has_global_level( config_get( 'create_project_threshold' ) ) ) {
+	$t_create_project_threshold = config_get( 'create_project_threshold' );
+	if( access_has_global_level( $t_create_project_threshold ) || access_has_project_level( $t_create_project_threshold, $f_project_id ) ) {
 		print_form_button(
 			'manage_proj_create_page.php',
 			lang_get( 'create_new_subproject_link' ),

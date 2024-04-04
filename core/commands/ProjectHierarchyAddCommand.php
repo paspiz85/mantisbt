@@ -93,8 +93,12 @@ class ProjectHierarchyAddCommand extends Command {
 				ERROR_PROJECT_RECURSIVE_HIERARCHY );
 		}
 
+		$t_is_creating = $this->payload( 'project' )['is_creating'];
+		if ( !isset($t_is_creating) ) {
+			$t_is_creating = false;
+		}
 		if( !access_has_project_level( config_get( 'manage_project_threshold' ), $this->project_id ) ||
-			!access_has_project_level( config_get( 'manage_project_threshold' ), $this->subproject_id ) ) {
+			!$t_is_creating && !access_has_project_level( config_get( 'manage_project_threshold' ), $this->subproject_id ) ) {
 			throw new ClientException(
 				'Access denied to add subprojects',
 				ERROR_ACCESS_DENIED );

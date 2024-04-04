@@ -128,8 +128,14 @@ function access_cache_matrix_project( $p_project_id ) {
 
 	if( !in_array( (int)$p_project_id, $g_cache_access_matrix_project_ids ) ) {
 		db_param_push();
-		$t_query = 'SELECT user_id, access_level FROM {project_user_list} WHERE project_id=' . db_param();
-		$t_result = db_query( $t_query, array( (int)$p_project_id ) );
+		if ( OFF == config_get_global( 'subprojects_inherit_users' ) ) {
+			$t_query = 'SELECT user_id, access_level FROM {project_user_list} WHERE project_id=' . db_param();
+			$t_result = db_query( $t_query, array( (int)$p_project_id ) );
+		} else {
+			# TODO: mysqli SQL error 1615 when using prepared statement on views
+			$t_query = 'SELECT user_id, access_level FROM {project_user_list_recursive} WHERE project_id=' . intval($p_project_id);
+			$t_result = db_query( $t_query, array() );
+		}
 		while( $t_row = db_fetch_array( $t_result ) ) {
 			$g_cache_access_matrix[(int)$t_row['user_id']][(int)$p_project_id] = (int)$t_row['access_level'];
 		}
@@ -163,7 +169,8 @@ function access_cache_matrix_user( $p_user_id ) {
 			$t_query = 'SELECT project_id, access_level FROM {project_user_list} WHERE user_id=' . db_param();
 			$t_result = db_query( $t_query, array( (int)$p_user_id ) );
 		} else {
-			$t_query = 'SELECT project_id, access_level FROM {project_user_list_recursive} WHERE user_id=' . $p_user_id;
+			# TODO: mysqli SQL error 1615 when using prepared statement on views
+			$t_query = 'SELECT project_id, access_level FROM {project_user_list_recursive} WHERE user_id=' . intval($p_user_id);
 			$t_result = db_query( $t_query, array() );
 		}
 
@@ -218,7 +225,7 @@ function access_get_global_level( $p_user_id = null ) {
 		return false;
 	}
 
-	return user_get_field( $p_user_id, 'access_level' );
+	return (int)user_get_field( $p_user_id, 'access_level' );
 }
 
 /**

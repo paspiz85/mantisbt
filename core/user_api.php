@@ -1346,17 +1346,18 @@ function user_get_accessible_projects( $p_user_id, $p_show_disabled = false ) {
 								) ORDER BY p.name';
 			$t_result = db_query( $t_query, ( $p_show_disabled ? array( $p_user_id, $t_public, $t_private, $p_user_id ) : array( $p_user_id, true, $t_public, $t_private, $p_user_id ) ) );
 		} else {
+			# TODO: mysqli SQL error 1615 when using prepared statement on views
 			$t_query = 'SELECT p.id, p.name, ph.parent_id
 							  FROM {project} p
 							  LEFT JOIN {project_user_list_recursive} u
-							    ON p.id=u.project_id AND u.user_id=' . $p_user_id . '
+							    ON p.id=u.project_id AND u.user_id=' . intval($p_user_id) . '
 							  LEFT JOIN {project_hierarchy} ph
 							    ON ph.child_id = p.id
 							  WHERE ' . ( $p_show_disabled ? '' : ( 'p.enabled = 1 AND ' ) ) . '
-								( p.view_state=' . $t_public . '
-								    OR (p.view_state=' . $t_private . '
+								( p.view_state=' . intval($t_public) . '
+								    OR (p.view_state=' . intval($t_private) . '
 									    AND
-								        u.user_id=' . $p_user_id . ' )
+								        u.user_id=' . intval($p_user_id) . ' )
 								) ORDER BY p.name';
 			$t_result = db_query( $t_query, array() );
 		}
@@ -1438,18 +1439,19 @@ function user_get_accessible_subprojects( $p_user_id, $p_project_id, $p_show_dis
 				array_splice( $t_param, 1, 0, true );
 			}
 		} else {
+			# TODO: mysqli SQL error 1615 when using prepared statement on views
 			$t_query = 'SELECT DISTINCT p.id, p.name, ph.parent_id
 						  FROM {project} p
 						  LEFT JOIN {project_user_list_recursive} u
-						    ON p.id = u.project_id AND u.user_id=' . $p_user_id . '
+						    ON p.id = u.project_id AND u.user_id=' . intval($p_user_id) . '
 						  LEFT JOIN {project_hierarchy} ph
 						    ON ph.child_id = p.id
 						  WHERE ' . ( $p_show_disabled ? '' : ( 'p.enabled = 1 AND ' ) ) . '
 						  	ph.parent_id IS NOT NULL AND
-							( p.view_state=' . VS_PUBLIC . '
-							    OR (p.view_state=' . VS_PRIVATE . '
+							( p.view_state=' . intval(VS_PUBLIC) . '
+							    OR (p.view_state=' . intval(VS_PRIVATE) . '
 								    AND
-							        u.user_id=' . $p_user_id . ' )
+							        u.user_id=' . intval($p_user_id) . ' )
 							)
 						  ORDER BY p.name';
 			$t_param = array();
