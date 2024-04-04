@@ -159,8 +159,13 @@ function access_cache_matrix_user( $p_user_id ) {
 
 	if( !in_array( (int)$p_user_id, $g_cache_access_matrix_user_ids ) ) {
 		db_param_push();
-		$t_query = 'SELECT project_id, access_level FROM {project_user_list} WHERE user_id=' . db_param();
-		$t_result = db_query( $t_query, array( (int)$p_user_id ) );
+		if ( OFF == config_get_global( 'subprojects_inherit_users' ) ) {
+			$t_query = 'SELECT project_id, access_level FROM {project_user_list} WHERE user_id=' . db_param();
+			$t_result = db_query( $t_query, array( (int)$p_user_id ) );
+		} else {
+			$t_query = 'SELECT project_id, access_level FROM {project_user_list_recursive} WHERE user_id=' . $p_user_id;
+			$t_result = db_query( $t_query, array() );
+		}
 
 		# make sure we always have an array to return
 		$g_cache_access_matrix[(int)$p_user_id] = array();
