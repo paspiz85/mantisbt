@@ -4338,6 +4338,13 @@ $g_subprojects_enabled = ON;
 $g_subprojects_inherit_categories = ON;
 
 /**
+ * Sub-projects should inherit users from parent projects.
+ *
+ * @global int $g_subprojects_inherit_users
+ */
+$g_subprojects_inherit_users = OFF;
+
+/**
  * Sub-projects should inherit versions from parent projects.
  *
  * @global integer $g_subprojects_inherit_versions
