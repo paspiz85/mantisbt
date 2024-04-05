@@ -713,12 +713,21 @@ function project_get_all_user_rows( $p_project_id = ALL_PROJECTS, $p_access_leve
 	if( $c_project_id != ALL_PROJECTS ) {
 		# Get the project overrides
 		$t_query = new DbQuery();
-		$t_query->sql( 'SELECT u.id, u.username, u.realname, l.access_level
-			FROM {project_user_list} l, {user} u
-			WHERE l.user_id = u.id
-			AND u.enabled = ' . $t_query->param( $t_on ) . '
-			AND l.project_id = ' . $t_query->param( $c_project_id )
-		);
+		if ( OFF == config_get_global( 'subprojects_inherit_users' ) ) {
+			$t_query->sql( 'SELECT u.id, u.username, u.realname, l.access_level
+				FROM {project_user_list} l, {user} u
+				WHERE l.user_id = u.id
+				AND u.enabled = ' . $t_query->param( $t_on ) . '
+				AND l.project_id = ' . $t_query->param( $c_project_id )
+			);
+		} else {
+			$t_query->sql( 'SELECT u.id, u.username, u.realname, l.access_level
+				FROM {project_user_list_recursive} l, {user} u
+				WHERE l.user_id = u.id
+				AND u.enabled = ' . ( $t_on == ON ? 1 : 0 ) . '
+				AND l.project_id = ' . intval( $c_project_id )
+			);
+		}
 		$t_query->execute();
 
 		while( $t_row = $t_query->fetch() ) {
