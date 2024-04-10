@@ -33,6 +33,11 @@ class IssueFileGetCommand extends Command {
 	private $issue_id;
 
 	/**
+	 * @var integer
+	 */
+	private $user_id;
+
+	/**
 	 * Constructor
 	 *
 	 * @param array $p_data The command data.
