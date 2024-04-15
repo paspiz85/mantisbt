@@ -55,6 +55,7 @@ form_security_validate( 'manage_proj_create' );
 
 auth_reauthenticate();
 
+$f_parent_id	= gpc_get_int( 'parent_id', 0 );
 $f_name 		= gpc_get_string( 'name' );
 $f_description 	= gpc_get_string( 'description' );
 $f_view_state	= gpc_get_int( 'view_state' );
@@ -64,6 +65,7 @@ $f_inherit_global = gpc_get_bool( 'inherit_global', 0 );
 
 $t_data = array(
 	'payload' => array(
+		'parent_id' => $f_parent_id,
 		'name' => $f_name,
 		'description' => $f_description,
 		'file_path' => $f_file_path,
@@ -81,7 +83,6 @@ $t_result = $t_command->execute();
 
 $t_project_id = $t_result['id'];
 
-$f_parent_id	= gpc_get_int( 'parent_id', 0 );
 $f_inherit_parent = gpc_get_bool( 'inherit_parent', 0 );
 
 # If parent project id != 0 then we're creating a subproject
@@ -92,6 +93,7 @@ if( 0 != $f_parent_id ) {
 		),
 		'payload' => array(
 			'project' => array(
+				'is_creating' => true,
 				'id' => (int)$t_project_id
 			 ),
 			'inherit_parent' => (bool)$f_inherit_parent

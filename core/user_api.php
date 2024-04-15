@@ -1331,19 +1331,36 @@ function user_get_accessible_projects( $p_user_id, $p_show_disabled = false ) {
 		$t_private = VS_PRIVATE;
 
 		db_param_push();
-		$t_query = 'SELECT p.id, p.name, ph.parent_id
-						  FROM {project} p
-						  LEFT JOIN {project_user_list} u
-						    ON p.id=u.project_id AND u.user_id=' . db_param() . '
-						  LEFT JOIN {project_hierarchy} ph
-						    ON ph.child_id = p.id
-						  WHERE ' . ( $p_show_disabled ? '' : ( 'p.enabled = ' . db_param() . ' AND ' ) ) . '
-							( p.view_state=' . db_param() . '
-							    OR (p.view_state=' . db_param() . '
-								    AND
-							        u.user_id=' . db_param() . ' )
-							) ORDER BY p.name';
-		$t_result = db_query( $t_query, ( $p_show_disabled ? array( $p_user_id, $t_public, $t_private, $p_user_id ) : array( $p_user_id, true, $t_public, $t_private, $p_user_id ) ) );
+		if ( OFF == config_get( 'subprojects_inherit_users' ) ) {
+			$t_query = 'SELECT p.id, p.name, ph.parent_id
+							  FROM {project} p
+							  LEFT JOIN {project_user_list} u
+							    ON p.id=u.project_id AND u.user_id=' . db_param() . '
+							  LEFT JOIN {project_hierarchy} ph
+							    ON ph.child_id = p.id
+							  WHERE ' . ( $p_show_disabled ? '' : ( 'p.enabled = ' . db_param() . ' AND ' ) ) . '
+								( p.view_state=' . db_param() . '
+								    OR (p.view_state=' . db_param() . '
+									    AND
+								        u.user_id=' . db_param() . ' )
+								) ORDER BY p.name';
+			$t_result = db_query( $t_query, ( $p_show_disabled ? array( $p_user_id, $t_public, $t_private, $p_user_id ) : array( $p_user_id, true, $t_public, $t_private, $p_user_id ) ) );
+		} else {
+			# TODO: mysqli SQL error 1615 when using prepared statement on views
+			$t_query = 'SELECT p.id, p.name, ph.parent_id
+							  FROM {project} p
+							  LEFT JOIN {project_user_list_recursive} u
+							    ON p.id=u.project_id AND u.user_id=' . intval($p_user_id) . '
+							  LEFT JOIN {project_hierarchy} ph
+							    ON ph.child_id = p.id
+							  WHERE ' . ( $p_show_disabled ? '' : ( 'p.enabled = 1 AND ' ) ) . '
+								( p.view_state=' . intval($t_public) . '
+								    OR (p.view_state=' . intval($t_private) . '
+									    AND
+								        u.user_id=' . intval($p_user_id) . ' )
+								) ORDER BY p.name';
+			$t_result = db_query( $t_query, array() );
+		}
 
 		$t_projects = array();
 
@@ -1401,24 +1418,43 @@ function user_get_accessible_subprojects( $p_user_id, $p_project_id, $p_show_dis
 					  ORDER BY p.name';
 		$t_result = db_query( $t_query, ( $p_show_disabled ? array() : array( true ) ) );
 	} else {
-		$t_query = 'SELECT DISTINCT p.id, p.name, ph.parent_id
-					  FROM {project} p
-					  LEFT JOIN {project_user_list} u
-					    ON p.id = u.project_id AND u.user_id=' . db_param() . '
-					  LEFT JOIN {project_hierarchy} ph
-					    ON ph.child_id = p.id
-					  WHERE ' . ( $p_show_disabled ? '' : ( 'p.enabled = ' . db_param() . ' AND ' ) ) . '
-					  	ph.parent_id IS NOT NULL AND
-						( p.view_state=' . db_param() . '
-						    OR (p.view_state=' . db_param() . '
-							    AND
-						        u.user_id=' . db_param() . ' )
-						)
-					  ORDER BY p.name';
-		$t_param = array( $p_user_id, VS_PUBLIC, VS_PRIVATE, $p_user_id );
-		if( !$p_show_disabled ) {
-			# Insert enabled flag value in 2nd position of parameter array
-			array_splice( $t_param, 1, 0, true );
+		if ( OFF == config_get( 'subprojects_inherit_users' ) ) {
+			$t_query = 'SELECT DISTINCT p.id, p.name, ph.parent_id
+						  FROM {project} p
+						  LEFT JOIN {project_user_list} u
+						    ON p.id = u.project_id AND u.user_id=' . db_param() . '
+						  LEFT JOIN {project_hierarchy} ph
+						    ON ph.child_id = p.id
+						  WHERE ' . ( $p_show_disabled ? '' : ( 'p.enabled = ' . db_param() . ' AND ' ) ) . '
+						  	ph.parent_id IS NOT NULL AND
+							( p.view_state=' . db_param() . '
+							    OR (p.view_state=' . db_param() . '
+								    AND
+							        u.user_id=' . db_param() . ' )
+							)
+						  ORDER BY p.name';
+			$t_param = array( $p_user_id, VS_PUBLIC, VS_PRIVATE, $p_user_id );
+			if( !$p_show_disabled ) {
+				# Insert enabled flag value in 2nd position of parameter array
+				array_splice( $t_param, 1, 0, true );
+			}
+		} else {
+			# TODO: mysqli SQL error 1615 when using prepared statement on views
+			$t_query = 'SELECT DISTINCT p.id, p.name, ph.parent_id
+						  FROM {project} p
+						  LEFT JOIN {project_user_list_recursive} u
+						    ON p.id = u.project_id AND u.user_id=' . intval($p_user_id) . '
+						  LEFT JOIN {project_hierarchy} ph
+						    ON ph.child_id = p.id
+						  WHERE ' . ( $p_show_disabled ? '' : ( 'p.enabled = 1 AND ' ) ) . '
+						  	ph.parent_id IS NOT NULL AND
+							( p.view_state=' . intval(VS_PUBLIC) . '
+							    OR (p.view_state=' . intval(VS_PRIVATE) . '
+								    AND
+							        u.user_id=' . intval($p_user_id) . ' )
+							)
+						  ORDER BY p.name';
+			$t_param = array();
 		}
 		$t_result = db_query( $t_query, $t_param );
 	}

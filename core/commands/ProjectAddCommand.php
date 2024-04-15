@@ -82,7 +82,9 @@ class ProjectAddCommand extends Command {
 	 * @return void
 	 */
 	function validate() {
-		if( !access_has_global_level( config_get( 'create_project_threshold' ) ) ) {
+		$t_parent_id = $this->payload( 'parent_id' );
+		$t_create_project_threshold = config_get( 'create_project_threshold' );
+		if( !access_has_global_level( $t_create_project_threshold ) && !( isset($t_parent_id) && $t_parent_id != 0 && access_has_project_level( $t_create_project_threshold, $t_parent_id ) ) ) {
 			throw new ClientException(
 				'Access denied to create projects',
 				ERROR_ACCESS_DENIED
