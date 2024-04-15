@@ -227,6 +227,12 @@ $t_show_due_date = in_array( 'due_date', $t_fields ) && access_has_project_level
 $t_show_attachments = in_array( 'attachments', $t_fields ) && file_allow_bug_upload();
 $t_show_view_state = in_array( 'view_state', $t_fields ) && access_has_project_level( config_get( 'set_view_status_threshold' ) );
 
+$t_project_row = project_get_row( $t_project_id );
+$t_target_version_required = false;
+if ( $t_project_row['status'] == 50 ) {
+	$t_target_version_required = true;
+}
+
 # don't index bug report page
 html_robots_noindex();
 
@@ -547,10 +553,11 @@ if( $t_show_attachments ) {
 	if( $t_show_target_version ) { ?>
 	<tr>
 		<th class="category">
+			<?php if( $t_target_version_required ) {?><span class="required">*</span><?php } ?>
 			<label for="target_version"><?php echo lang_get( 'target_version' ) ?></label>
 		</th>
 		<td>
-			<select <?php echo helper_get_tab_index() ?> id="target_version" name="target_version" class="input-sm">
+			<select <?php echo helper_get_tab_index() ?> id="target_version" name="target_version" class="input-sm"<?php if( $t_target_version_required ) {?> required="required"<?php } ?>>
 				<?php print_version_option_list( '', null, VERSION_FUTURE ) ?>
 			</select>
 		</td>
