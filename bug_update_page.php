@@ -153,12 +153,6 @@ if( $t_show_product_version ) {
 $t_formatted_bug_id = $t_show_id ? bug_format_id( $f_bug_id ) : '';
 $t_project_name = $t_show_project ? string_display_line( project_get_name( $t_bug->project_id ) ) : '';
 
-$t_project_row = project_get_row( $t_bug->project_id );
-$t_target_version_required = false;
-if ( $t_project_row['status'] == 50 ) {
-	$t_target_version_required = true;
-}
-
 layout_page_header( bug_format_summary( $f_bug_id, SUMMARY_CAPTION ) );
 
 layout_page_begin();
@@ -609,16 +603,8 @@ if( $t_show_target_version || $t_show_fixed_in_version ) {
 
 	# Target Version
 	if( $t_show_target_version ) {
-		echo '<th class="category">';
-		if ( $t_target_version_required ) {
-			echo '<span class="required">*</span>';
-		}
-		echo '<label for="target_version">' . lang_get( 'target_version' ) . '</label></th>';
-		echo '<td><select ' . helper_get_tab_index() . ' id="target_version" name="target_version" class="input-sm"';
-		if ( $t_target_version_required ) {
-			echo ' required="required"';
-		}
-		echo '>';
+		echo '<th class="category"><label for="target_version">' . lang_get( 'target_version' ) . '</label></th>';
+		echo '<td><select ' . helper_get_tab_index() . ' id="target_version" name="target_version" class="input-sm">';
 		print_version_option_list( $t_bug->target_version, $t_bug->project_id, VERSION_FUTURE );
 		echo '</select></td>';
 	} else {

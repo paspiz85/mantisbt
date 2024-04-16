@@ -508,6 +508,11 @@ class BugData {
 			category_ensure_exists( $this->category_id );
 		}
 
+		if ( $this->status != CLOSED && $this->status >= config_get( 'bug_target_version_required_status_threshold', null, null, $this->project_id ) && is_blank( $this->target_version ) ) {
+			error_parameters( lang_get( 'target_version' ) );
+			trigger_error( ERROR_EMPTY_FIELD, ERROR );
+		}
+
 		if( !is_blank( $this->duplicate_id ) && ( $this->duplicate_id != 0 ) && ( $this->id == $this->duplicate_id ) ) {
 			trigger_error( ERROR_BUG_DUPLICATE_SELF, ERROR );
 			# never returns
