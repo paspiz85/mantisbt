@@ -685,6 +685,10 @@ class BugData {
 
 		$t_old_data = bug_get( $this->id, true );
 
+		if ( $this->status == RESOLVED && !empty( $this->target_version ) && empty( $this->fixed_in_version ) ) {
+			$this->fixed_in_version = $this->target_version;
+		}
+
 		# Update all fields
 		# Ignore date_submitted and last_updated, since they are pulled out as Unix
 		# timestamps which could confuse the history log. They shouldn't get updated
