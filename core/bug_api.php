@@ -519,6 +519,14 @@ class BugData {
 			category_ensure_exists( $this->category_id );
 		}
 
+		if ( $this->status != CLOSED && is_blank( $this->target_version ) ) {
+			$t_bug_target_version_required_status_threshold = config_get( 'bug_target_version_required_status_threshold', null, null, $this->project_id );
+			if ( $t_bug_target_version_required_status_threshold != OFF && $this->status >= $t_bug_target_version_required_status_threshold ) {
+				error_parameters( lang_get( 'target_version' ) );
+				trigger_error( ERROR_EMPTY_FIELD, ERROR );
+			}
+		}
+
 		if( !is_blank( $this->duplicate_id ) && ( $this->duplicate_id != 0 ) && ( $this->id == $this->duplicate_id ) ) {
 			trigger_error( ERROR_BUG_DUPLICATE_SELF, ERROR );
 			# never returns
