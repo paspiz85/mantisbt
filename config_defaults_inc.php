@@ -2300,10 +2300,16 @@ $g_bug_submit_status = NEW_;
 $g_bug_assigned_status = ASSIGNED;
 
 /**
- * Status threshold to require target version.
- * @global integer $g_bug_target_version_required_status_threshold
+ * In RESOLVED state fixed_in_version default from target_version.
+ * @global integer $g_bug_fixed_in_version_from_target_version
  */
-$g_bug_target_version_required_status_threshold = OFF;
+$g_bug_fixed_in_version_from_target_version = OFF;
+
+/**
+ * In RESOLVED state fixed_in_version is required.
+ * @global integer $g_bug_fixed_in_version_required
+ */
+$g_bug_fixed_in_version_required = OFF;
 
 /**
  * Status to assign to the bug when reopened.
