@@ -2303,7 +2303,7 @@ $g_bug_assigned_status = ASSIGNED;
  * Status threshold to require target version.
  * @global integer $g_bug_target_version_required_status_threshold
  */
-$g_bug_target_version_required_status_threshold = CLOSED;
+$g_bug_target_version_required_status_threshold = 0;
 
 /**
  * Status to assign to the bug when reopened.
